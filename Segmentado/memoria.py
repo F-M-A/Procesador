@@ -40,9 +40,8 @@ class InstructionMemory():
             print(ins)
 
     def popInstruction(self)->"instruction":
-        return self.__lista.pop(0)
+        if len(self._list) != 0:
+            return self._list.pop(0)
+        else:
+            return Instruction()
 
-
-
-mem = InstructionMemory("instrucciones.txt")
-mem.showInstructions()
