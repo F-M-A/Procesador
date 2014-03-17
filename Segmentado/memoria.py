@@ -7,14 +7,17 @@ class Instruction():
 
     __slots__ = ("codeOp", "ra", "rb", "rc")
 
-    def __init__(self, codeOp, ra, rb, rc):
+    def __init__(self, codeOp = "NOP", ra = None, rb = None, rc = None):
         self.codeOp = codeOp
         self.ra = ra
         self.rb = rb
         self.rc = rc
 
     def __str__(self):
-        return "{}\t{}, {}, {}".format(self.codeOp, self.ra, self.rb, self.rc)
+        if self.codeOp != "trap":
+            return "{}\t{}, {}, {}".format(self.codeOp, self.ra, self.rb, self.rc)
+        else:
+            return "{}".format(self.codeOp)
 
 class InstructionMemory():
 
@@ -24,15 +27,22 @@ class InstructionMemory():
 
     def _parseFromFile(self, fileName:"String"):
         for linea in open(fileName, "r"):
-            op, ra, rb, rc  = linea.strip().split()
-            ra, rb, rc = ra[:-1], rb[:-1], rc
+            try:
+                op, ra, rb, rc  = linea.strip().split()
+                ra, rb, rc = ra[:-1], rb[:-1], rc
+            except:
+                op = linea[:-1]
+                ra = rb = rc = None
             self._list.append(Instruction(op, ra, rb, rc))
 
     def showInstructions(self):
-        print(self._list[0])
+        for ins in self._list:
+            print(ins)
 
     def popInstruction(self)->"instruction":
         return self.__lista.pop(0)
 
-INSTRUCTION_MEMORY = InstructionMemory("instrucciones.txt")
-INSTRUCTION_MEMORY.showInstructions()
+
+
+mem = InstructionMemory("instrucciones.txt")
+mem.showInstructions()
