@@ -19,9 +19,9 @@ class Register_if_id():
 
 class Register_id_exe():
 
-    __slots__ = ("instruction", "a", "b")
+    __slots__ = ("instruction", "a", "b", "store")
 
-    def __init__(self, instruction = Instruction(), a = None, b = None):
+    def __init__(self, instruction = Instruction(), a = None, b = None, store = None):
         self.instruction = instruction
         self.a = a; self.b = b
 

@@ -9,11 +9,17 @@ def etapa_if(insMem:"InstructionMemory") -> "Register_if_id":
     return Register_if_id(insMem.popInstruction())
 
 def etapa_id(if_id, id_exe, regBank) -> "Register_id_exe":
-    rb = if_id.instruction.rb; rc = if_id.instruction.rc
     codeOp = if_id.instruction.codeOp
+    ra     = if_id.instruction.ra
+    rb     = if_id.instruction.rb
+    rc     = if_id.instruction.rc
 
-    a = regBank[rb] if codeOp != "NOP" and codeOp != "trap" else None
+    if codeOp == "sw" or codeOp == "lw":
+        a = rb
+    else:  a = regBank[rb] if codeOp != "NOP" and codeOp != "trap" else None
+
     b = regBank[rc] if codeOp != "NOP" and codeOp != "trap" else None
+    store = regBank[ra] if codeOp == "sw" else None
 
     dest        = None if id_exe.instruction.codeOp == "sw" else rc
     leftEle     = rb
@@ -25,9 +31,9 @@ def etapa_id(if_id, id_exe, regBank) -> "Register_id_exe":
         print("NOP introducida")
         return Register_id_exe(Instruction(), None, None), True
 
-    return Register_id_exe(if_id.instruction, a, b), False
+    return Register_id_exe(if_id.instruction, a, b, store), False
 
-def etapa_exe(id_exe) -> "Register_exe_wb":
+def etapa_exe(id_exe, dataMemory) -> "Register_exe_wb":
     codeOp = id_exe.instruction.codeOp
     c = None
     if codeOp == "add":
@@ -39,14 +45,14 @@ def etapa_exe(id_exe) -> "Register_exe_wb":
     elif codeOp == "div":
         c = id_exe.a / id_exe.b
     elif codeOp == "lw":
-        c = None
+        c = dataMemory[(id_exe.a + id_exe.b) / 100]
     elif codeOp == "sw":
-        c = None
+        dataMemory[(id_exe.a + id_exe.b) / 100] = id_exe.store
 
     return Register_exe_wb(id_exe.instruction, c)
 
-def etapa_wb(exe_wb, registerBank) -> "Map":
-    if exe_wb.instruction.codeOp != "NOP":
+def etapa_wb(exe_wb, registerBank) -> "Map, instruction":
+    if exe_wb.instruction.codeOp != "NOP" and exe_wb.instruction.codeOp != "sw":
         registerBank[exe_wb.instruction.ra] = exe_wb.c
-    return registerBank
+    return registerBank, exe_wb.instruction
 

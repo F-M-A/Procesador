@@ -3,6 +3,14 @@
 # Memoria de instrucciones y memoria principal#
 
 
+"""
+El formato de las instrucciones:
+    add ra,  rb, rc
+    sw  ra, inm, rc
+
+    En las instrucciones de carga y descarga el inmediato estará ubicado
+    en el medio hay que tener cuidado
+"""
 class Instruction():
 
     __slots__ = ("codeOp", "ra", "rb", "rc")
@@ -45,3 +53,8 @@ class InstructionMemory():
         else:
             return Instruction()
 
+def fillMemory():
+    out = []
+    for i in range(32):
+        out.append(i * 100)
+    return out
