@@ -9,7 +9,7 @@ INSTRUCTIONS_WB = []
 def fillBank():
     dic = {}
     for i in range(16):
-        dic["r{}".format(i)] = (i * 10, 1)
+        dic["r{}".format(i)] = i * 10
     return dic
 
 class InstructionWindow():
@@ -28,7 +28,10 @@ class InstructionWindow():
             self.dest = dest
 
         def __str__(self):
-            return "{}\t{}\t{}\t{}\t{}".format(self.n, self.codeOp, self.op1, self.op2, self.dest)
+            return "{}\t{}\t{}\t{}\t{}\t{}\t{}".format(self.n, self.codeOp, self.op1, self.ok1,self.op2, self.ok2, self.dest)
+
+        def __repr__(self):
+            return "{}\t{}\t{}\t{}\t{}\t{}\t{}".format(self.n, self.codeOp, self.op1, self.ok1,self.op2, self.ok2, self.dest)
 
     MAX_INSTRUCTION = 64
 
@@ -49,3 +52,54 @@ class InstructionWindow():
 
     def __str__(self):
         return "{}".format(self._list)
+
+# Suponemos un ROB infinito
+class RoB():
+    class RoBLine():
+
+        # i -> n Instruccion #
+
+        __slots__ = ("i", "dest", "codeOp", "ok", "mark", "res")
+
+        def __init__(self, i , dest, codeOp, ok = 0, mark = "x"):
+            self.i = i
+            self.dest = dest
+            self.codeOp = codeOp
+            self.ok = ok
+            self.mark = mark
+
+    def __init__(self):
+        self._list = []
+
+    def addLine(self, i, dest, codeOp):
+        self._list.append(self.RoBLine(i, dest, codeOp))
+
+    def modLine(self, n, ok, mark):
+        self._list[n].ok = ok
+        self._list[n].mark = mark
+
+    def findRegAndAssign(self, i:"start", reg, regBank):
+        if i == 0: return regBank[reg], 1
+        for i in range(len(self._list) - 2, -1, -1):
+            if self._list[i].dest == reg:
+                if self._list[i].ok == 1:
+                    return self._list.res, 1
+                else:
+                    return i, 0
+            else:
+                return regBank[reg], 1
+
+    def assignRes(self, i, res):
+        self._list[i].res = res
+        self._list[i].ok = 1
+        self._list[i].mark = "f"
+
+    def __getitem__(self, key):
+        return self._list[key]
+
+    def __len__(self):
+        return len(self._list)
+
+
+
+

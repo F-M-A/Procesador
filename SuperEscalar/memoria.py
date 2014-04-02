@@ -63,7 +63,7 @@ class InstructionMemory():
         if len(self._list) != 0:
             return self._list.pop(0)
         else:
-            return Instruction()
+            return None
 
 def fillMemory():
     out = []

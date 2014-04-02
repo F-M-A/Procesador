@@ -8,24 +8,32 @@ from memoria import *
 def main():
     instructionMemory = InstructionMemory("instrucciones.txt")
     dataMemory = fillMemory()
-    registerBank = fillBank()
+    regBank = fillBank()
+    trap = False
 
     i = 1
     while(True):
         print("Ciclo: {}".format(i))
         i += 1
-        registerBank, inst = etapa_wb(exe_wb, registerBank)
 
-        exe_wb = etapa_exe(id_exe, dataMemory)
+        etapa_com(regBank)
 
-        if exe_wb.instruction.codeOp == "trap": break
+        etapa_wb(regBank)
 
-        id_exe, retorno = etapa_id(if_id, id_exe, registerBank)
-        if retorno: continue
+#        if trap: break
 
-        if_id = etapa_if(instructionMemory)
+        if i == 10: break
+
+        etapa_exe()
+
+        etapa_iss()
+
+        trap = etapa_id(regBank)
+
+        etapa_if(instructionMemory)
+
     for i in range(16):
-        print("R{0:02} -> {1:3}".format(i,registerBank["r{}".format(i)]))
+        print("R{0:02} -> {1:3}".format(i,regBank["r{}".format(i)]))
 
 
 if __name__ == "__main__":
