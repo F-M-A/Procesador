@@ -1,3 +1,2 @@
-add	r1, r4, r3
-sub r6, r4, r3
+mul	r1, r4, r3
 trap

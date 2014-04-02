@@ -53,6 +53,18 @@ class InstructionWindow():
     def __str__(self):
         return "{}".format(self._list)
 
+    def updateWindow(self, RoB):
+        for i in range(len(self._list)):
+            ins = self._list[i]
+            if ins.ok1 == 0 and RoB[ins.op1].ok == 1:
+                self._list[i].op1 = RoB[ins.op1].res
+                self._list[i].ok1 = 1
+
+            if ins.ok2 == 0 and RoB[ins.op2].ok == 1:
+                self._list[i].op2 = RoB[ins.op2].res
+                self._list[i].ok2 = 1
+
+
 # Suponemos un ROB infinito
 class RoB():
     class RoBLine():

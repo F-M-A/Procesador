@@ -5,22 +5,22 @@
 from structs import InstructionWindow, INSTRUCTIONS_WB, RoB
 from memoria import Instruction
 
-MULT_CICLES = 3
-LOAD_CICLES = 2
-ALU_CICLES = 1
+MULT_CYCLES = 3
+LOAD_CYCLES = 2
+ALU_CYCLES = 1
 
 
 INSTRUCTION_QUEUE = []
 INSTRUCTION_WINDOW = InstructionWindow()
-SEGMENTATION_MULT_UNIT = [0] * MULT_CICLES
-SEGMENTATION_LOAD_UNIT = [0] * LOAD_CICLES
+SEGMENTATION_MULT_UNIT = [0] * MULT_CYCLES
+SEGMENTATION_LOAD_UNIT = [0] * LOAD_CYCLES
 # 4 Instrucciones pueden estar en exe a la vez #
 # [ALU, ALU, MULT, MEM]
 INSTRUCTIONS_IN_EXE = [0] * 4
 
 ROB = RoB()
 
-CODE_OP_MAP = {"add": 1, "sub" : 2, "mult" : 3,\
+CODE_OP_MAP = {"add": 1, "sub" : 2, "mul" : 3,\
                "div": 4, "lw"  : 5, "sw"   : 6,\
                "trap":-1, "nop": 0}
 
@@ -86,17 +86,30 @@ def etapa_exe() -> "Register_exe_wb":
         res = False
         if 0<=i<=1 and ins != 0: #ALU
             if ins.codeOp == 1:
-                out = ins.op1 + ins.op2
+                out = (ins.dest, ins.op1 + ins.op2)
                 res = True
             elif ins.codeOp == 2 and ins != 0:
-                out = ins.op1 - ins.op2
+                out = (ins.dest,ins.op1 - ins.op2)
                 res = True
 
-        elif i == 2: #MDU
-            pass
+        elif i == 2 and ins != 0: #MDU
+            if ins.codeOp == 3:
+                res = ins.op1 * ins.op2
+                for i in range(MULT_CYCLES - 1, -1, -1):
+                    if SEGMENTATION_MULT_UNIT[i] != 0:
+                        if i == len(SEGMENTATION_MULT_UNIT) - 1:
+                            res = True
+                            out = SEGMENTATION_MULT_UNIT[-1]
+                        else:
+                            SEGMENTATION_MULT_UNIT[i + 1] = SEGMENTATION_MULT_UNIT[i]
+                SEGMENTATION_MULT_UNIT[0] = (ins.dest, res)
+
+            elif ins.codeOp == 4:
+                out = ins.op1 // ins.op2
+                res = True
 
         if res:
-            INSTRUCTIONS_WB.append((ins.dest, out))
+            INSTRUCTIONS_WB.append(out)
             INSTRUCTIONS_IN_EXE[i] = 0
 
 def etapa_wb(registerBank) -> "Map, instruction":
@@ -104,6 +117,7 @@ def etapa_wb(registerBank) -> "Map, instruction":
         try: ins = INSTRUCTIONS_WB.pop(0)
         except: ins = None
         if ins != None:
+            print(ins)
             ROB.assignRes(ins[0], ins[1])
 
 def etapa_com(regBank):

@@ -18,11 +18,13 @@ def main():
 
         etapa_com(regBank)
 
+        INSTRUCTION_WINDOW.updateWindow(ROB)
+
         etapa_wb(regBank)
 
 #        if trap: break
 
-        if i == 10: break
+        if i == 20: break
 
         etapa_exe()
 
