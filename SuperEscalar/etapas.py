@@ -34,9 +34,11 @@ def etapa_if(insMem:"InstructionMemory") -> "Register_if_id":
 def etapa_id(regBank) -> "Register_id_exe":
     if len(INSTRUCTION_QUEUE) > 0:
         for i in range(2):
+
             ins = INSTRUCTION_QUEUE.pop(0)
             n = ins.n; codeOp = ins.codeOp
             if codeOp == "trap": return True
+            print(ins)
 
             dest   = ins.ra; rb = ins.rb; rc = ins.rc
 
@@ -48,7 +50,7 @@ def etapa_id(regBank) -> "Register_id_exe":
             codeOp = CODE_OP_MAP[codeOp]
 
             INSTRUCTION_WINDOW.addInstruction(n, codeOp, op1, ok1, op2, ok2, n)
-            return False
+        return False
 
 def etapa_iss():
     i = 0
@@ -120,7 +122,6 @@ def etapa_com(regBank):
         ins = ROB[i]
         if ins.mark == "f" or ins.mark == "fin":
             if ins.mark == "f":
-                print(ins)
                 regBank[ins.dest] = ins.res
             ROB[i].mark = "fin"
         else: break

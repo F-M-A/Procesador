@@ -64,7 +64,6 @@ class InstructionWindow():
                 self._list[i].op2 = RoB[ins.op2].res
                 self._list[i].ok2 = 1
 
-
 # Suponemos un ROB infinito
 class RoB():
     class RoBLine():
@@ -96,14 +95,13 @@ class RoB():
 
     def findRegAndAssign(self, i:"start", reg, regBank):
         if i == 0: return regBank[reg], 1
-        for i in range(len(self._list) - 2, -1, -1):
-            if self._list[i].dest == reg:
-                if self._list[i].ok == 1:
-                    return self._list.res, 1
+        for j in range(len(self._list) - 2, -1, -1):
+            if self._list[j].dest == reg:
+                if self._list[j].ok == 1:
+                    return self._list[j].res, 1
                 else:
-                    return i, 0
-            else:
-                return regBank[reg], 1
+                    return j, 0
+        return regBank[reg], 1
 
     def assignRes(self, i, res):
         self._list[i].res = res
