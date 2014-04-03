@@ -7,6 +7,7 @@ from memoria import *
 
 def main():
     instructionMemory = InstructionMemory("instrucciones.txt")
+    nIns = len(instructionMemory)
     dataMemory = fillMemory()
     regBank = fillBank()
     trap = False
@@ -14,32 +15,43 @@ def main():
     i = 1
     while(True):
 
+        if nIns == len(ROB) and ROB[-1].mark == "fin": break
+
         print("Ciclo: {}".format(i))
         i += 1
 
-        etapa_com(regBank)
 
-        INSTRUCTION_WINDOW.updateWindow(ROB)
+        etapa_com(regBank)
 
         etapa_wb(regBank)
 
-#        if trap: break
-
-        if i == 20: break
+        INSTRUCTION_WINDOW.updateWindow(ROB)
 
         etapa_exe()
 
         etapa_iss()
 
-        trap = etapa_id(regBank)
+        etapa_id(regBank)
 
         etapa_if(instructionMemory)
 
+        printRoB()
 
+    printBank(regBank)
 
+def printRoB():
+    print("        {}".format("*" * 25))
+    print("\t\t   {}".format("ROB"))
+    for i in range(len(ROB)):
+        print("\t   {}".format(ROB[i]))
+    print("        {}".format("*" * 25))
+
+def printBank(regBank):
+    print("\t{}".format("*" * 25))
+    print("\t*   {}  *".format("Banco de registros"))
+    print("\t{}".format("*" * 25))
     for i in range(16):
-        print("R{0:02} -> {1:3}".format(i,regBank["r{}".format(i)]))
-
+        print("\t*\tR{0:02} -> {1:3}\t*".format(i,regBank["r{}".format(i)]))
 
 
 if __name__ == "__main__":

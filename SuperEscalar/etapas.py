@@ -12,7 +12,7 @@ ALU_CYCLES = 1
 
 INSTRUCTION_QUEUE = []
 INSTRUCTION_WINDOW = InstructionWindow()
-SEGMENTATION_MULT_UNIT = [0] * MULT_CYCLES
+SEGMENTATION_MULT_UNIT = [0] * (MULT_CYCLES - 1)
 SEGMENTATION_LOAD_UNIT = [0] * LOAD_CYCLES
 # 4 Instrucciones pueden estar en exe a la vez #
 # [ALU, ALU, MULT, MEM]
@@ -37,8 +37,6 @@ def etapa_id(regBank) -> "Register_id_exe":
 
             ins = INSTRUCTION_QUEUE.pop(0)
             n = ins.n; codeOp = ins.codeOp
-            if codeOp == "trap": return True
-            print(ins)
 
             dest   = ins.ra; rb = ins.rb; rc = ins.rc
 
@@ -50,7 +48,6 @@ def etapa_id(regBank) -> "Register_id_exe":
             codeOp = CODE_OP_MAP[codeOp]
 
             INSTRUCTION_WINDOW.addInstruction(n, codeOp, op1, ok1, op2, ok2, n)
-        return False
 
 def etapa_iss():
     i = 0

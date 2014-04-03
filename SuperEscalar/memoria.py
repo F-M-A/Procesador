@@ -65,6 +65,9 @@ class InstructionMemory():
         else:
             return None
 
+    def __len__(self):
+        return len(self._list)
+
 def fillMemory():
     out = []
     for i in range(32):
