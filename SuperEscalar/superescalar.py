@@ -13,8 +13,6 @@ def main():
 
     i = 1
     while(True):
-        print("Ciclo: {}".format(i))
-        i += 1
 
         etapa_com(regBank)
 
@@ -34,8 +32,12 @@ def main():
 
         etapa_if(instructionMemory)
 
+        print("Ciclo: {}".format(i))
+        i += 1
+
     for i in range(16):
         print("R{0:02} -> {1:3}".format(i,regBank["r{}".format(i)]))
+
 
 
 if __name__ == "__main__":

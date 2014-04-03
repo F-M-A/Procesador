@@ -31,7 +31,6 @@ def etapa_if(insMem:"InstructionMemory") -> "Register_if_id":
         if ins != None:
             INSTRUCTION_QUEUE.append(ins)
 
-
 def etapa_id(regBank) -> "Register_id_exe":
     if len(INSTRUCTION_QUEUE) > 0:
         for i in range(2):
@@ -79,8 +78,15 @@ def etapa_iss():
     for i in removable:
         INSTRUCTION_WINDOW.pop(i)
 
+def updateMultSegmentation():
+    ins = SEGMENTATION_MULT_UNIT.pop()
+    SEGMENTATION_MULT_UNIT.insert(0, 0)
+
+    if ins != 0: INSTRUCTIONS_WB.append(ins)
+
 
 def etapa_exe() -> "Register_exe_wb":
+    updateMultSegmentation()
     for i in range(len(INSTRUCTIONS_IN_EXE)):
         ins = INSTRUCTIONS_IN_EXE[i]
         res = False
@@ -94,30 +100,19 @@ def etapa_exe() -> "Register_exe_wb":
 
         elif i == 2 and ins != 0: #MDU
             if ins.codeOp == 3:
-                res = ins.op1 * ins.op2
-                for i in range(MULT_CYCLES - 1, -1, -1):
-                    if SEGMENTATION_MULT_UNIT[i] != 0:
-                        if i == len(SEGMENTATION_MULT_UNIT) - 1:
-                            res = True
-                            out = SEGMENTATION_MULT_UNIT[-1]
-                        else:
-                            SEGMENTATION_MULT_UNIT[i + 1] = SEGMENTATION_MULT_UNIT[i]
-                SEGMENTATION_MULT_UNIT[0] = (ins.dest, res)
-
-            elif ins.codeOp == 4:
-                out = ins.op1 // ins.op2
-                res = True
+                SEGMENTATION_MULT_UNIT[0] = (ins.dest, ins.op1 * ins.op2)
+                INSTRUCTIONS_IN_EXE[i] = 0
 
         if res:
             INSTRUCTIONS_WB.append(out)
             INSTRUCTIONS_IN_EXE[i] = 0
+
 
 def etapa_wb(registerBank) -> "Map, instruction":
     for i in range(2):
         try: ins = INSTRUCTIONS_WB.pop(0)
         except: ins = None
         if ins != None:
-            print(ins)
             ROB.assignRes(ins[0], ins[1])
 
 def etapa_com(regBank):
@@ -125,6 +120,7 @@ def etapa_com(regBank):
         ins = ROB[i]
         if ins.mark == "f" or ins.mark == "fin":
             if ins.mark == "f":
+                print(ins)
                 regBank[ins.dest] = ins.res
             ROB[i].mark = "fin"
         else: break

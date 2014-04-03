@@ -1,2 +1,3 @@
 mul	r1, r4, r3
+mul r2, r2, r2
 trap

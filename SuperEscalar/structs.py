@@ -79,6 +79,10 @@ class RoB():
             self.codeOp = codeOp
             self.ok = ok
             self.mark = mark
+            self.res = "-"
+
+        def __str__(self):
+            return "{} {} {} {} {} {}".format(self.i, self.dest, self.codeOp, self.ok, self.mark, self.res)
 
     def __init__(self):
         self._list = []
