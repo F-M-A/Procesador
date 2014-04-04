@@ -21,15 +21,20 @@ def etapa_id(if_id, id_exe, regBank) -> "Register_id_exe":
     b = regBank[rc] if codeOp != "NOP" and codeOp != "trap" else None
     store = regBank[ra] if codeOp == "sw" else None
 
-    dest        = None if id_exe.instruction.codeOp == "sw" else rc
+    dest        = None if id_exe.instruction.codeOp == "sw" else id_exe.instruction.ra
     leftEle     = rb
     rightEle    = None if codeOp == "lw" else rc
+
 
     if (codeOp != "NOP" and codeOp != "trap" and\
             id_exe.instruction.codeOp != "NOP" and id_exe.instruction.codeOp != "trap") and \
             (leftEle == dest or rightEle == dest):
         print("NOP introducida")
         return Register_id_exe(Instruction(), None, None), True
+
+    if codeOp == "sw":
+        store = regBank[ra]
+
 
     return Register_id_exe(if_id.instruction, a, b, store), False
 
@@ -45,9 +50,9 @@ def etapa_exe(id_exe, dataMemory) -> "Register_exe_wb":
     elif codeOp == "div":
         c = id_exe.a / id_exe.b
     elif codeOp == "lw":
-        c = dataMemory[(id_exe.a + id_exe.b) / 100]
+        c = dataMemory[(int(id_exe.a) + id_exe.b) // 100]
     elif codeOp == "sw":
-        dataMemory[(id_exe.a + id_exe.b) / 100] = id_exe.store
+        dataMemory[(int(id_exe.a) + id_exe.b) // 100] = id_exe.store
 
     return Register_exe_wb(id_exe.instruction, c)
 

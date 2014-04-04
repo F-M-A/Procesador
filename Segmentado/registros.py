@@ -17,6 +17,9 @@ class Register_if_id():
     def __init__(self, instruction = Instruction()):
         self.instruction = instruction
 
+    def __str__(self):
+        return "{}".format(self.instruction)
+
 class Register_id_exe():
 
     __slots__ = ("instruction", "a", "b", "store")
@@ -24,6 +27,10 @@ class Register_id_exe():
     def __init__(self, instruction = Instruction(), a = None, b = None, store = None):
         self.instruction = instruction
         self.a = a; self.b = b
+        self.store = store
+
+    def __str__(self):
+        return "{}".format(self.instruction)
 
 class Register_exe_wb():
 
@@ -32,3 +39,6 @@ class Register_exe_wb():
     def __init__(self, instruction = Instruction(), c = None):
         self.instruction = instruction
         self.c = c
+
+    def __str__(self):
+        return "{}".format(self.instruction)
