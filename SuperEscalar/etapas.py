@@ -48,7 +48,7 @@ def etapa_id(regBank) -> "Register_id_exe":
 
             if codeOp != "sw" and codeOp != "lw":
                 op1, ok1 = ROB.findRegAndAssign(n, rb, regBank)
-            else: op1, ok1 = int(rb), 1
+            else: op1, ok1 = ROB.findRegAndAssign(n, dest, regBank)
 
             op2, ok2 = ROB.findRegAndAssign(n, rc, regBank)
 
@@ -121,7 +121,7 @@ def etapa_exe(dataMemory) -> "Register_exe_wb":
                 SEGMENTATION_LOAD_UNIT[0] = (ins.dest, dataMemory[(ins.op1 + ins.op2) // 100])
                 INSTRUCTIONS_IN_EXE[i] = 0
             elif ins.codeOp == 6: #sw
-                SEGMENTATION_LOAD_UNIT[0] = (ins.dest, ins.op1 + ins.op2)
+                SEGMENTATION_LOAD_UNIT[0] = (ins.dest, 0 + ins.op2)
                 INSTRUCTIONS_IN_EXE[i] = 0
 
         if res:
@@ -147,6 +147,6 @@ def etapa_com(regBank, dataMemory):
                 regBank[ins.dest] = ins.res
             elif ins.mark == "f" and ins.codeOp == "sw":
                 print(ins.res)
-                dataMemory[ins.res//100] = regBank[ins.dest]
+                dataMemory[ins.res // 100] = regBank[ins.dest]
             ROB[i].mark = "fin"
         else: break
