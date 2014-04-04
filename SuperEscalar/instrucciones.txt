@@ -2,3 +2,5 @@ mul	r3, r6, r5
 add r6, r3, r1
 add r3, r5, r1
 sub r7, r3, r6
+lw r14,  0, r10
+sw r11,  0, r10

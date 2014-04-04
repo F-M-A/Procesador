@@ -4,6 +4,7 @@
 
 from structs import InstructionWindow, INSTRUCTIONS_WB, RoB
 from memoria import Instruction
+import sys
 
 MULT_CYCLES = 3
 LOAD_CYCLES = 2
@@ -12,7 +13,7 @@ ALU_CYCLES = 1
 
 INSTRUCTION_QUEUE = []
 INSTRUCTION_WINDOW = InstructionWindow()
-SEGMENTATION_MULT_UNIT = [0] * (MULT_CYCLES - 1)
+SEGMENTATION_MULT_UNIT = [0] * MULT_CYCLES
 SEGMENTATION_LOAD_UNIT = [0] * LOAD_CYCLES
 # 4 Instrucciones pueden estar en exe a la vez #
 # [ALU, ALU, MULT, MEM]
@@ -35,14 +36,20 @@ def etapa_id(regBank) -> "Register_id_exe":
     if len(INSTRUCTION_QUEUE) > 0:
         for i in range(2):
 
-            ins = INSTRUCTION_QUEUE.pop(0)
+            try: ins = INSTRUCTION_QUEUE.pop(0)
+            except: return None
+
             n = ins.n; codeOp = ins.codeOp
 
-            dest   = ins.ra; rb = ins.rb; rc = ins.rc
+            dest   = ins.ra
+            rb = ins.rb; rc = ins.rc
 
             ROB.addLine(n, dest, codeOp)
 
-            op1, ok1 = ROB.findRegAndAssign(n, rb, regBank)
+            if codeOp != "sw" and codeOp != "lw":
+                op1, ok1 = ROB.findRegAndAssign(n, rb, regBank)
+            else: op1, ok1 = int(rb), 1
+
             op2, ok2 = ROB.findRegAndAssign(n, rc, regBank)
 
             codeOp = CODE_OP_MAP[codeOp]
@@ -55,20 +62,23 @@ def etapa_iss():
     removable = []
     for i in range(len(INSTRUCTION_WINDOW)):
         ins = INSTRUCTION_WINDOW[i]
-
         if ins.ok1 and ins.ok2:
-            iss = True
             if 1<=ins.codeOp<=2:
 
                 if INSTRUCTIONS_IN_EXE[0] == 0:
                     INSTRUCTIONS_IN_EXE[0] = ins
+                    iss = True
                 elif INSTRUCTIONS_IN_EXE[1] == 0:
                     INSTRUCTIONS_IN_EXE[1] = ins
+                    iss = True
 
-            elif 3<=ins.codeOp<=4 and INSTRUCTIONS_IN_EXE[2] == 0:
+            elif 3 <= ins.codeOp <= 4 and INSTRUCTIONS_IN_EXE[2] == 0:
                 INSTRUCTIONS_IN_EXE[2] = ins
+                iss = True
 
-            else: pass
+            elif 5 <= ins.codeOp <= 6 and INSTRUCTIONS_IN_EXE[3] == 0:
+                INSTRUCTIONS_IN_EXE[3] = ins
+                iss = True
         if iss:
             removable.append(i)
             iss = False
@@ -83,29 +93,42 @@ def updateMultSegmentation():
 
     if ins != 0: INSTRUCTIONS_WB.append(ins)
 
+def updateMemSegmentation():
+    ins = SEGMENTATION_LOAD_UNIT.pop()
+    SEGMENTATION_LOAD_UNIT.insert(0, 0)
 
-def etapa_exe() -> "Register_exe_wb":
-    updateMultSegmentation()
+    if ins != 0: INSTRUCTIONS_WB.append(ins)
+
+def etapa_exe(dataMemory) -> "Register_exe_wb":
     for i in range(len(INSTRUCTIONS_IN_EXE)):
         ins = INSTRUCTIONS_IN_EXE[i]
         res = False
         if 0<=i<=1 and ins != 0: #ALU
-            if ins.codeOp == 1:
+            if ins.codeOp == 1: #ADD
                 out = (ins.dest, ins.op1 + ins.op2)
                 res = True
-            elif ins.codeOp == 2 and ins != 0:
+            elif ins.codeOp == 2: #SUB
                 out = (ins.dest,ins.op1 - ins.op2)
                 res = True
 
         elif i == 2 and ins != 0: #MDU
-            if ins.codeOp == 3:
+            if ins.codeOp == 3: #mul
                 SEGMENTATION_MULT_UNIT[0] = (ins.dest, ins.op1 * ins.op2)
+                INSTRUCTIONS_IN_EXE[i] = 0
+
+        elif i == 3 and ins != 0: #MEM
+            if ins.codeOp == 5: #lw
+                SEGMENTATION_LOAD_UNIT[0] = (ins.dest, dataMemory[(ins.op1 + ins.op2) // 100])
+                INSTRUCTIONS_IN_EXE[i] = 0
+            elif ins.codeOp == 6: #sw
+                SEGMENTATION_LOAD_UNIT[0] = (ins.dest, ins.op1 + ins.op2)
                 INSTRUCTIONS_IN_EXE[i] = 0
 
         if res:
             INSTRUCTIONS_WB.append(out)
             INSTRUCTIONS_IN_EXE[i] = 0
-
+    updateMultSegmentation()
+    updateMemSegmentation()
 
 def etapa_wb(registerBank) -> "Map, instruction":
     for i in range(2):
@@ -114,11 +137,16 @@ def etapa_wb(registerBank) -> "Map, instruction":
         if ins != None:
             ROB.assignRes(ins[0], ins[1])
 
-def etapa_com(regBank):
+
+
+def etapa_com(regBank, dataMemory):
     for i in range(len(ROB)):
         ins = ROB[i]
         if ins.mark == "f" or ins.mark == "fin":
-            if ins.mark == "f":
+            if ins.mark == "f" and ins.codeOp != "sw":
                 regBank[ins.dest] = ins.res
+            elif ins.mark == "f" and ins.codeOp == "sw":
+                print(ins.res)
+                dataMemory[ins.res//100] = regBank[ins.dest]
             ROB[i].mark = "fin"
         else: break

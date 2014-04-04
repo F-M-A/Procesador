@@ -21,13 +21,13 @@ def main():
         i += 1
 
 
-        etapa_com(regBank)
+        etapa_com(regBank, dataMemory)
 
         etapa_wb(regBank)
 
         INSTRUCTION_WINDOW.updateWindow(ROB)
 
-        etapa_exe()
+        etapa_exe(dataMemory)
 
         etapa_iss()
 
@@ -37,7 +37,7 @@ def main():
 
         printRoB()
 
-    printBank(regBank)
+    printMemAndBank(regBank, dataMemory)
 
 def printRoB():
     print("        {}".format("*" * 25))
@@ -46,13 +46,16 @@ def printRoB():
         print("\t   {}".format(ROB[i]))
     print("        {}".format("*" * 25))
 
-def printBank(regBank):
-    print("\t{}".format("*" * 25))
+def printMemAndBank(regBank, dataMemory):
+    print("\t{}\t{}".format("*" * 25, "*" * 25))
+    print("\t*   {}    *".format("Memoria de datos"), end = "")
     print("\t*   {}  *".format("Banco de registros"))
-    print("\t{}".format("*" * 25))
-    for i in range(16):
-        print("\t*\tR{0:02} -> {1:3}\t*".format(i,regBank["r{}".format(i)]))
-
+    print("\t{}\t{}".format("*" * 25, "*" * 25))
+    for i in range(32):
+        print("\t*\t{0:4} -> {1:04}\t*".format(i * 100, dataMemory[i]), end = "")
+        if i < 16:
+            print("\t*\tR{0:02} -> {1:3}\t*".format(i,regBank["r{}".format(i)]))
+        else: print()
 
 if __name__ == "__main__":
     main()

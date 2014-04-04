@@ -76,7 +76,7 @@ class RoB():
             self.i = i
             self.dest = dest
             self.codeOp = codeOp
-            self.ok = ok
+            self.ok = 1 if codeOp == "sw" else ok
             self.mark = mark
             self.res = "-"
 
@@ -96,7 +96,7 @@ class RoB():
     def findRegAndAssign(self, i:"start", reg, regBank):
         if i == 0: return regBank[reg], 1
         for j in range(len(self._list) - 2, -1, -1):
-            if self._list[j].dest == reg:
+            if self._list[j].dest == reg and self._list[j].dest != "sw":
                 if self._list[j].ok == 1:
                     return self._list[j].res, 1
                 else:
