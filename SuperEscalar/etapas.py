@@ -46,7 +46,7 @@ def etapa_id(regBank) -> "Register_id_exe":
 
             ROB.addLine(n, dest, codeOp)
 
-            if codeOp != "sw" and codeOp != "lw":
+            if codeOp != "sw":
                 op1, ok1 = ROB.findRegAndAssign(n, rb, regBank)
             else: op1, ok1 = ROB.findRegAndAssign(n, dest, regBank)
 
@@ -146,7 +146,6 @@ def etapa_com(regBank, dataMemory):
             if ins.mark == "f" and ins.codeOp != "sw":
                 regBank[ins.dest] = ins.res
             elif ins.mark == "f" and ins.codeOp == "sw":
-                print(ins.res)
                 dataMemory[ins.res // 100] = regBank[ins.dest]
             ROB[i].mark = "fin"
         else: break
